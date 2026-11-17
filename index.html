@@ -30,8 +30,6 @@
     flex-direction: column;
     gap: 10px;
   }
-
-  /* 英雄区 */
   .hero-row {
     display: flex;
     justify-content: space-between;
@@ -42,11 +40,7 @@
     border: 1px solid #333c55;
     box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 4px 14px rgba(0,0,0,.4);
   }
-  .hero {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .hero { display: flex; align-items: center; gap: 10px; }
   .hero-avatar {
     width: 52px; height: 52px;
     border-radius: 50%;
@@ -78,8 +72,6 @@
     font-size: 10px; font-weight: bold; color: #fff;
     text-shadow: 0 1px 2px #000;
   }
-
-  /* 战场 */
   .battlefield {
     min-height: 150px;
     border-radius: 14px;
@@ -98,8 +90,6 @@
     font-size: 10px; letter-spacing: 2px; color: #5c6680;
     width: 100%; margin-bottom: 2px;
   }
-
-  /* 随从 */
   .minion {
     width: 82px; height: 100px;
     border-radius: 10px;
@@ -132,8 +122,6 @@
   .hp { background: #7a1f1f; color: #ffd9d9; }
   .minion.can-attack { box-shadow: 0 0 0 2px #5ad47a, 0 3px 10px rgba(0,0,0,.4); }
   .minion.ready { border-color: #5ad47a; }
-
-  /* 手牌 */
   .hand-area {
     min-height: 150px;
     display: flex;
@@ -168,15 +156,16 @@
     font-weight: bold; font-size: 13px; color: #fff;
     text-shadow: 0 1px 2px #000;
   }
-  .card .art {
-    font-size: 30px; margin: 6px 0 4px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
-  }
+  .card .art { font-size: 30px; margin: 6px 0 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
   .card .cname { font-size: 11px; font-weight: bold; color: #f0e6c8; text-align: center; line-height: 1.2; }
   .card .desc { font-size: 9px; color: #b0b8c8; text-align: center; margin-top: 4px; line-height: 1.3; }
+  .card .stats {
+    position: absolute; bottom: 8px; left: 0; right: 0;
+    display: flex; justify-content: space-between; padding: 0 6px;
+    pointer-events: none;
+  }
+  .card:not(.spell) .desc { margin-bottom: 18px; }
   .card.spell .cname { color: #bfe3ff; }
-
-  /* 底部操作区 */
   .bottom-bar {
     display: flex;
     justify-content: space-between;
@@ -187,10 +176,7 @@
     border: 1px solid #333c55;
     gap: 12px;
   }
-  .mana {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 15px; font-weight: bold; color: #8fc4ff;
-  }
+  .mana { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: bold; color: #8fc4ff; }
   .mana .orb {
     width: 30px; height: 30px; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, #6ab0ff, #1a3a6a);
@@ -213,7 +199,16 @@
   .btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
   .btn.secondary { border-color: #5fb0d4; background: linear-gradient(180deg, #1c3a4a, #101e26); color: #bfe3ff; }
   .btn.secondary:hover { background: linear-gradient(180deg, #244a5c, #162a36); }
-
+  .btn .mana-pip {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #6ab0ff, #1a3a6a);
+    border: 1px solid #a8d4ff; color: #fff;
+    font-size: 11px; font-weight: bold;
+    text-shadow: 0 1px 2px #000;
+    box-shadow: 0 0 6px rgba(106,176,255,.4);
+    vertical-align: middle; margin-left: 2px;
+  }
   .log {
     width: 100%; max-width: 960px;
     height: 70px; overflow-y: auto;
@@ -225,7 +220,6 @@
     line-height: 1.6;
   }
   .log div { border-bottom: 1px solid rgba(255,255,255,.03); padding: 1px 0; }
-
   .overlay {
     position: fixed; inset: 0;
     background: rgba(5,7,12,.85);
@@ -292,9 +286,9 @@
   <!-- 我方英雄 -->
   <div class="hero-row">
     <div class="hero">
-      <div class="hero-avatar">🛡️</div>
+      <div class="hero-avatar" id="playerAvatar">🛡️</div>
       <div class="hero-info">
-        <div class="hero-name">冒险者</div>
+        <div class="hero-name" id="playerName">冒险者</div>
         <div class="hp-bar"><div class="hp-fill" id="playerHpFill" style="width:100%"></div><div class="hp-text" id="playerHpText">30 / 30</div></div>
       </div>
     </div>
@@ -310,7 +304,7 @@
   <!-- 底部 -->
   <div class="bottom-bar">
     <div style="font-size:11px;color:#8a94aa" id="deckInfo">牌库：20 张</div>
-    <button class="btn secondary" id="heroPowerBtn" title="英雄技能">🔥 英雄技能 (2费)</button>
+    <button class="btn secondary" id="heroPowerBtn" title="英雄技能"></button>
     <button class="btn" id="endTurnBtn">结束回合</button>
   </div>
 
@@ -327,7 +321,7 @@
 </div>
 
 <script>
-// ============ 卡牌数据 ============
+// ============ 卡牌数据（不变） ============
 const CARD_POOL = [
   { id:'strike', name:'打击', cost:1, type:'minion', atk:2, hp:1, icon:'⚔️', desc:'冲锋' , charge:true},
   { id:'guard',  name:'守卫', cost:2, type:'minion', atk:1, hp:4, icon:'🛡️', desc:'嘲讽', taunt:true },
@@ -341,28 +335,107 @@ const CARD_POOL = [
   { id:'priest', name:'祭司', cost:2, type:'minion', atk:1, hp:3, icon:'🧙', desc:'战吼：恢复 2 点生命', battlecry:'heal2' },
 ];
 
-// ============ 关卡配置 ============
+// ============ 英雄技能配置（不变） ============
+const HERO_POWERS = {
+  fireball: {
+    name: '火球冲击',
+    cost: 2,
+    icon: '🔥',
+    type: 'damage',
+    value: 1,
+    desc: '造成 1 点伤害',
+  },
+};
+
+// ============ 英雄注册表（第①步新增） ============
+// 每个英雄拥有 forms（形态）。当前只有 base；第③步变身系统会用到 enraged 等。
+// 形态字段：
+//   玩家：name/avatar/maxHp/heroPower(字符串,查 HERO_POWERS)/deck
+//   Boss：name/avatar/maxHp/heroPowerDesc/skillType/skillVal/deck
+const HEROES = {
+  adventurer: {
+    key: 'adventurer',
+    initialForm: 'base',
+    forms: {
+      base: {
+        name: '冒险者',
+        avatar: '🛡️',
+        maxHp: 30,
+        heroPower: 'fireball',
+        deck: [
+          'strike','strike','strike','strike','strike','strike',
+          'guard','guard','wolf','fire','heal','draw','bolt','knight','priest',
+        ],
+      },
+      // ===== 预留：玩家首次降到 5 血存活 → 切换到此形态（第③步填） =====
+      // enraged: {
+      //   name: '狂化冒险者', avatar: '🩸', maxHp: 30, heroPower: '???', deck: [...],
+      //   // 负面效果字段随第③步设计补充
+      // },
+    },
+  },
+  // ===== 预留：第④步新增英雄，照此格式追加 =====
+  // stormcaller: { key:'stormcaller', initialForm:'base', forms:{ base:{...}, ... } },
+};
+
+// 当前使用的玩家英雄
+const PLAYER_HERO_KEY = 'adventurer';
+
+// ============ 关卡 / Boss 注册表（改为 forms 结构，与英雄同构） ============
 const STAGES = [
-  { name:'暗影领主', avatar:'💀', hp:30, skill:'每回合对英雄造成 1 点伤害', skillType:'dot', skillVal:1,
-    deck:['strike','strike','guard','wolf','fire','bolt'] },
-  { name:'熔岩巨兽', avatar:'🌋', hp:40, skill:'每回合召唤一个 1/1 的火元素', skillType:'summon', skillVal:1,
-    deck:['fire','fire','wolf','golem','strike','guard'] },
-  { name:'亡灵巫师', avatar:'🧟', hp:50, skill:'每回合抽 1 张牌并造成 1 点伤害', skillType:'drain', skillVal:1,
-    deck:['bolt','bolt','priest','knight','guard','fire','draw'] },
+  {
+    key: 'shadowlord',
+    initialForm: 'base',
+    forms: {
+      base: {
+        name:'暗影领主', avatar:'💀', maxHp:30,
+        heroPowerDesc:'每回合对英雄造成 1 点伤害',
+        skillType:'dot', skillVal:1,
+        deck:['strike','strike','guard','wolf','fire','bolt'],
+      },
+      // ===== 预留：Boss 死亡 → 二阶段（第③步填） =====
+      // phase2: { name:'暗影领主·真身', avatar:'👹', maxHp:45, heroPowerDesc:'...', skillType:'...', skillVal:2, deck:[...] },
+    },
+  },
+  {
+    key: 'lavabeast',
+    initialForm: 'base',
+    forms: {
+      base: {
+        name:'熔岩巨兽', avatar:'🌋', maxHp:40,
+        heroPowerDesc:'每回合召唤一个 1/1 的火元素',
+        skillType:'summon', skillVal:1,
+        deck:['fire','fire','wolf','golem','strike','guard'],
+      },
+    },
+  },
+  {
+    key: 'necromancer',
+    initialForm: 'base',
+    forms: {
+      base: {
+        name:'亡灵巫师', avatar:'🧟', maxHp:50,
+        heroPowerDesc:'每回合抽 1 张牌并造成 1 点伤害',
+        skillType:'drain', skillVal:1,
+        deck:['bolt','bolt','priest','knight','guard','fire','draw'],
+      },
+    },
+  },
 ];
 
 // ============ 游戏状态 ============
 let state = {
   stage: 0,
   turn: 1,
-  playerHp: 30, playerMaxHp: 30,
-  enemyHp: 30, enemyMaxHp: 30,
+  player: null,          // 英雄实例对象（见 createHeroInstance）
+  enemy: null,           // Boss 实例对象
   mana: 0, maxMana: 0,
   deck: [], hand: [], playerField: [], enemyField: [],
   enemyDeck: [], enemyHand: [],
   selectedAttacker: null,
   gameOver: false,
   heroPowerUsed: false,
+  bonusCards: [],
 };
 
 // ============ 工具 ============
@@ -383,26 +456,62 @@ function makeCard(id){
   return { ...base, uid: Math.random().toString(36).slice(2) };
 }
 
+// ============ 英雄实例（第①步新增） ============
+// 从注册表构造一个运行时英雄实例，读取 initialForm。
+function createHeroInstance(reg, formKey){
+  const fk = formKey || reg.initialForm;
+  const form = reg.forms[fk];
+  return {
+    key: reg.key,
+    form: fk,
+    name: form.name,
+    avatar: form.avatar,
+    hp: form.maxHp,
+    maxHp: form.maxHp,
+    heroPower: form.heroPower,
+    heroPowerDesc: form.heroPowerDesc,
+    skillType: form.skillType,
+    skillVal: form.skillVal,
+    deckTemplate: form.deck ? [...form.deck] : [],
+    forms: reg.forms,
+  };
+}
+
+// ============ 形态切换（第③步变身系统预留接口） ============
+// applyForm(inst, 'enraged', { preserveHp:true })
+// 注意：变身“不打断当前结算”，调用方需在安全点（结算之间）调用。
+function applyForm(inst, formKey, opts = {}){
+  const form = inst.forms[formKey];
+  if(!form){ console.warn('未知形态:', formKey); return; }
+  inst.form = formKey;
+  inst.name = form.name;
+  inst.avatar = form.avatar;
+  inst.maxHp = form.maxHp;
+  inst.hp = opts.preserveHp ? Math.min(inst.hp, form.maxHp) : form.maxHp;
+  inst.heroPower = form.heroPower;
+  inst.heroPowerDesc = form.heroPowerDesc;
+  inst.skillType = form.skillType;
+  inst.skillVal = form.skillVal;
+  if(form.deck) inst.deckTemplate = [...form.deck];
+}
+
 // ============ 初始化 ============
 function initGame(){
   state.stage = 0;
-  state.playerHp = 30; state.playerMaxHp = 30;
-  state.baseDeck = [
-    'strike','strike','strike','strike','strike','strike',
-    'guard','guard','wolf','fire','heal','draw','bolt','knight','priest',
-  ];
   state.bonusCards = [];
   state.hand = [];
+  state.player = createHeroInstance(HEROES[PLAYER_HERO_KEY]);
   startStage();
 }
 
 function startStage(){
-  state.deck = shuffle([...state.baseDeck, ...state.bonusCards].map(makeCard));
-  const cfg = STAGES[state.stage];
-  state.enemyHp = cfg.hp; state.enemyMaxHp = cfg.hp;
-  state.enemyField = [];
-  state.enemyDeck = shuffle(cfg.deck.map(makeCard));
+  const stageReg = STAGES[state.stage];
+  state.enemy = createHeroInstance(stageReg);
+
+  state.deck = shuffle([...state.player.deckTemplate, ...state.bonusCards].map(makeCard));
+  state.enemyDeck = shuffle(state.enemy.deckTemplate.map(makeCard));
   state.enemyHand = [];
+  state.enemyField = [];
   state.playerField = [];
   state.turn = 1;
   state.maxMana = 0; state.mana = 0;
@@ -412,12 +521,13 @@ function startStage(){
   state.hand = [];
   for(let i=0;i<4;i++) drawCard(state.deck, state.hand);
   drawCard(state.deck, state.hand);
+
   $('stageNum').textContent = state.stage + 1;
-  $('enemyName').textContent = cfg.name;
-  $('enemyAvatar').textContent = cfg.avatar;
-  $('enemySkillDesc').textContent = '英雄技能：' + cfg.skill;
+  $('enemyName').textContent = state.enemy.name;
+  $('enemyAvatar').textContent = state.enemy.avatar;
+  $('enemySkillDesc').textContent = '英雄技能：' + state.enemy.heroPowerDesc;
   $('overlay').classList.add('hidden');
-  log(`—— 第 ${state.stage+1} 关：${cfg.name} ——`);
+  log(`—— 第 ${state.stage+1} 关：${state.enemy.name} ——`);
   startPlayerTurn(true);
 }
 
@@ -425,7 +535,7 @@ function startStage(){
 function drawCard(deck, hand){
   if(deck.length === 0){
     if(hand === state.hand){
-      state.playerHp -= 1;
+      state.player.hp -= 1;
       log('牌库空了，疲劳造成 1 点伤害');
       updateUI();
       checkGameOver();
@@ -454,31 +564,31 @@ function startPlayerTurn(first){
 function endTurn(){
   if(state.gameOver) return;
   state.selectedAttacker = null;
-  // 敌方回合
+  // 第②步：电荷结算钩子将插在这里（我方回合结束）
   enemyTurn();
 }
 
 // ============ 敌方 AI ============
 function enemyTurn(){
   if(state.gameOver) return;
-  const cfg = STAGES[state.stage];
-  // 解锁上一回合留下的敌方随从
+  const enemy = state.enemy;
   state.enemyField.forEach(m => m.canAttack = true);
+
   // 英雄技能
-  if(cfg.skillType === 'dot'){
-    state.playerHp -= cfg.skillVal;
-    log(`【${cfg.name}】英雄技能：对你造成 ${cfg.skillVal} 点伤害`);
-  } else if(cfg.skillType === 'summon'){
+  if(enemy.skillType === 'dot'){
+    state.player.hp -= enemy.skillVal;
+    log(`【${enemy.name}】英雄技能：对你造成 ${enemy.skillVal} 点伤害`);
+  } else if(enemy.skillType === 'summon'){
     if(state.enemyField.length < 7){
       const m = makeCard('strike'); m.atk = 1; m.hp = 1; m.name = '火元素'; m.icon = '🔥'; m.charge = true;
       state.enemyField.push({...m, canAttack: true});
-      log(`【${cfg.name}】召唤了一个 1/1 的火元素`);
+      log(`【${enemy.name}】召唤了一个 1/1 的火元素`);
     } else {
-      log(`【${cfg.name}】战场已满，无法召唤火元素`);
+      log(`【${enemy.name}】战场已满，无法召唤火元素`);
     }
-  } else if(cfg.skillType === 'drain'){
-    state.playerHp -= cfg.skillVal;
-    log(`【${cfg.name}】吸取生命，对你造成 ${cfg.skillVal} 点伤害`);
+  } else if(enemy.skillType === 'drain'){
+    state.player.hp -= enemy.skillVal;
+    log(`【${enemy.name}】吸取生命，对你造成 ${enemy.skillVal} 点伤害`);
   }
   checkGameOver();
   if(state.gameOver) return;
@@ -486,7 +596,6 @@ function enemyTurn(){
   // 抽牌 + 出牌
   if(state.enemyHand.length < 5) drawCard(state.enemyDeck, state.enemyHand);
   let enemyMana = Math.min(10, 1 + Math.floor(state.turn * 0.8));
-  // 简单 AI：按费用从高到低出牌
   const sorted = [...state.enemyHand].sort((a,b) => b.cost - a.cost);
   for(const card of sorted){
     if(card.cost <= enemyMana){
@@ -499,14 +608,13 @@ function enemyTurn(){
   // 敌方随从攻击
   state.enemyField.forEach(m => {
     if(m.canAttack && m.atk > 0){
-      // 优先攻击嘲讽，否则打脸
       const taunt = state.playerField.find(p => p.taunt);
       if(taunt){
         taunt.hp -= m.atk;
         log(`敌方 ${m.name} 攻击你的 ${taunt.name}，造成 ${m.atk} 点伤害`);
         if(taunt.hp <= 0){ state.playerField = state.playerField.filter(p => p.uid !== taunt.uid); log(`你的 ${taunt.name} 被击败`); }
       } else {
-        state.playerHp -= m.atk;
+        state.player.hp -= m.atk;
         log(`敌方 ${m.name} 攻击你的英雄，造成 ${m.atk} 点伤害`);
       }
       m.canAttack = false;
@@ -515,7 +623,6 @@ function enemyTurn(){
   checkGameOver();
   if(state.gameOver) return;
 
-  // 回到玩家回合
   state.turn++;
   state.playerField.forEach(m => m.canAttack = true);
   startPlayerTurn(false);
@@ -524,10 +631,10 @@ function enemyTurn(){
 function playEnemyCard(card){
   if(card.type === 'spell'){
     if(card.dmg){
-      state.playerHp -= card.dmg;
+      state.player.hp -= card.dmg;
       log(`敌方施放 ${card.name}，对你造成 ${card.dmg} 点伤害`);
     } else if(card.heal){
-      state.enemyHp = Math.min(state.enemyMaxHp, state.enemyHp + card.heal);
+      state.enemy.hp = Math.min(state.enemy.maxHp, state.enemy.hp + card.heal);
       log(`敌方施放 ${card.name}，恢复 ${card.heal} 点生命`);
     } else if(card.draw){
       for(let i=0;i<card.draw;i++) drawCard(state.enemyDeck, state.enemyHand);
@@ -547,18 +654,17 @@ function playCard(card){
   state.hand = state.hand.filter(c => c.uid !== card.uid);
   if(card.type === 'spell'){
     if(card.dmg){
-      // 优先打敌方随从，否则打脸
       if(state.enemyField.length > 0){
         const target = state.enemyField[0];
         target.hp -= card.dmg;
         log(`你施放 ${card.name}，对敌方 ${target.name} 造成 ${card.dmg} 点伤害`);
         if(target.hp <= 0){ state.enemyField = state.enemyField.filter(m => m.uid !== target.uid); log(`敌方 ${target.name} 被击败`); }
       } else {
-        state.enemyHp -= card.dmg;
+        state.enemy.hp -= card.dmg;
         log(`你施放 ${card.name}，对敌方英雄造成 ${card.dmg} 点伤害`);
       }
     } else if(card.heal){
-      state.playerHp = Math.min(state.playerMaxHp, state.playerHp + card.heal);
+      state.player.hp = Math.min(state.player.maxHp, state.player.hp + card.heal);
       log(`你施放 ${card.name}，恢复 ${card.heal} 点生命`);
     } else if(card.draw){
       for(let i=0;i<card.draw;i++) drawCard(state.deck, state.hand);
@@ -569,7 +675,7 @@ function playCard(card){
     state.playerField.push(m);
     log(`你召唤了 ${card.name} (${card.atk}/${card.hp})`);
     if(card.battlecry === 'heal2'){
-      state.playerHp = Math.min(state.playerMaxHp, state.playerHp + 2);
+      state.player.hp = Math.min(state.player.maxHp, state.player.hp + 2);
       log(`战吼：恢复 2 点生命`);
     }
   }
@@ -592,11 +698,10 @@ function attackTarget(target, isEnemy){
   if(!state.selectedAttacker) return;
   const attacker = state.selectedAttacker;
   if(isEnemy){
-    // 检查嘲讽
     const taunt = state.enemyField.find(m => m.taunt);
     if(taunt && taunt.uid !== target.uid){ log('必须先攻击嘲讽随从'); return; }
     if(target.isHero){
-      state.enemyHp -= attacker.atk;
+      state.enemy.hp -= attacker.atk;
       log(`你的 ${attacker.name} 攻击敌方英雄，造成 ${attacker.atk} 点伤害`);
     } else {
       target.hp -= attacker.atk;
@@ -616,18 +721,23 @@ function attackTarget(target, isEnemy){
 }
 
 function useHeroPower(){
-  if(state.heroPowerUsed || state.mana < 2 || state.gameOver) return;
-  state.mana -= 2;
+  const hp = HERO_POWERS[state.player.heroPower];
+  if(state.heroPowerUsed || state.mana < hp.cost || state.gameOver) return;
+  state.mana -= hp.cost;
   state.heroPowerUsed = true;
-  if(state.enemyField.length > 0){
-    const t = state.enemyField[0];
-    t.hp -= 1;
-    log(`英雄技能：对敌方 ${t.name} 造成 1 点伤害`);
-    if(t.hp <= 0){ state.enemyField = state.enemyField.filter(m => m.uid !== t.uid); log(`敌方 ${t.name} 被击败`); }
-  } else {
-    state.enemyHp -= 1;
-    log(`英雄技能：对敌方英雄造成 1 点伤害`);
+
+  if(hp.type === 'damage'){
+    if(state.enemyField.length > 0){
+      const t = state.enemyField[0];
+      t.hp -= hp.value;
+      log(`英雄技能【${hp.name}】：对敌方 ${t.name} 造成 ${hp.value} 点伤害`);
+      if(t.hp <= 0){ state.enemyField = state.enemyField.filter(m => m.uid !== t.uid); log(`敌方 ${t.name} 被击败`); }
+    } else {
+      state.enemy.hp -= hp.value;
+      log(`英雄技能【${hp.name}】：对敌方英雄造成 ${hp.value} 点伤害`);
+    }
   }
+
   checkGameOver();
   updateUI();
 }
@@ -635,14 +745,15 @@ function useHeroPower(){
 // ============ 胜负 ============
 function checkGameOver(){
   if(state.gameOver) return;
-  if(state.playerHp <= 0){
+  if(state.player.hp <= 0){
     state.gameOver = true;
     showOverlay('失败…', '你的冒险到此为止。重新开始？', [{name:'重新开始', icon:'🔄', desc:'从第一关再来', action:()=>{ initGame(); }}]);
     return;
   }
-  if(state.enemyHp <= 0){
+  if(state.enemy.hp <= 0){
     state.gameOver = true;
-    log(`你击败了 ${STAGES[state.stage].name}！`);
+    log(`你击败了 ${state.enemy.name}！`);
+    // 第③步：此处插入 Boss 二阶段变身检查（不打断 → 先结算完再变身）
     if(state.stage >= STAGES.length - 1){
       showOverlay('通关！', '你征服了暗影裂隙，成为传奇冒险者！', [{name:'再玩一次', icon:'🏆', desc:'重新开始冒险', action:()=>{ initGame(); }}]);
     } else {
@@ -682,14 +793,28 @@ function showOverlay(title, text, choices){
 
 // ============ 渲染 ============
 function updateUI(){
-  // 血量
-  $('playerHpFill').style.width = Math.max(0, state.playerHp / state.playerMaxHp * 100) + '%';
-  $('playerHpText').textContent = `${Math.max(0,state.playerHp)} / ${state.playerMaxHp}`;
-  $('enemyHpFill').style.width = Math.max(0, state.enemyHp / state.enemyMaxHp * 100) + '%';
-  $('enemyHpText').textContent = `${Math.max(0,state.enemyHp)} / ${state.enemyMaxHp}`;
+  if(!state.player || !state.enemy) return;
+  const p = state.player, e = state.enemy;
+
+  // 英雄信息（名字/头像/血量都从实例读）
+  $('playerName').textContent = p.name;
+  $('playerAvatar').textContent = p.avatar;
+  $('playerHpFill').style.width = Math.max(0, p.hp / p.maxHp * 100) + '%';
+  $('playerHpText').textContent = `${Math.max(0,p.hp)} / ${p.maxHp}`;
+
+  $('enemyName').textContent = e.name;
+  $('enemyAvatar').textContent = e.avatar;
+  $('enemyHpFill').style.width = Math.max(0, e.hp / e.maxHp * 100) + '%';
+  $('enemyHpText').textContent = `${Math.max(0,e.hp)} / ${e.maxHp}`;
+  $('enemySkillDesc').textContent = '英雄技能：' + (e.heroPowerDesc || '');
+
   $('manaOrb').textContent = `${state.mana}/${state.maxMana}`;
   $('deckInfo').textContent = `牌库：${state.deck.length} 张 ｜ 手牌：${state.hand.length}`;
-  $('heroPowerBtn').disabled = state.heroPowerUsed || state.mana < 2 || state.gameOver;
+
+  const heroPower = HERO_POWERS[p.heroPower];
+  $('heroPowerBtn').innerHTML = `${heroPower.icon} ${heroPower.name} <span class="mana-pip">${heroPower.cost}</span>`;
+  $('heroPowerBtn').title = heroPower.desc;
+  $('heroPowerBtn').disabled = state.heroPowerUsed || state.mana < heroPower.cost || state.gameOver;
 
   // 敌方战场
   const ef = $('enemyField');
@@ -722,14 +847,15 @@ function updateUI(){
   state.hand.forEach(c => {
     const d = document.createElement('div');
     d.className = 'card' + (c.type === 'spell' ? ' spell' : '') + (state.mana < c.cost || state.gameOver ? ' disabled' : '');
-    const stats = c.type === 'minion' ? `<div class="desc">${c.atk} 攻 / ${c.hp} 血</div>` : '';
+    const statsHtml = c.type === 'minion'
+      ? `<div class="stats"><span class="atk">${c.atk}</span><span class="hp">${c.hp}</span></div>`
+      : '';
     d.innerHTML = `<div class="cost">${c.cost}</div><div class="art">${c.icon}</div>
-      <div class="cname">${c.name}</div><div class="desc">${c.desc}</div>${stats}`;
+      <div class="cname">${c.name}</div><div class="desc">${c.desc}</div>${statsHtml}`;
     d.onclick = () => playCard(c);
     ha.appendChild(d);
   });
 
-  // 敌方英雄点击（攻击目标）
   $('enemyAvatar').onclick = () => attackTarget({isHero:true}, true);
 }
 
@@ -737,7 +863,6 @@ function updateUI(){
 $('endTurnBtn').onclick = endTurn;
 $('heroPowerBtn').onclick = useHeroPower;
 
-// 点击空白取消选择
 document.addEventListener('click', (e) => {
   if(!e.target.closest('.minion')) {
     state.selectedAttacker = null;
